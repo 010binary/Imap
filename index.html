@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaflet Map with Custom Marker Styling</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        #map {
+            margin: auto;
+            height: 600px;
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+        }
+
+        .custom-marker {
+            width: 30px;
+            height: 20px;
+            border-radius: 15px;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Add a purple overlay to tint the map */
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32, 37, 70, 0.5);
+            /* Purple with 50% transparency */
+            pointer-events: none;
+            /* Allow interaction with the map below */
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Leaflet.js Map with Custom Square Marker Styling</h1>
+    <div id="map"></div>
+    <div class="map-overlay"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map("map").setView([9.145, 40.4897], 3);
+
+        // Add base tiles without labels
+        L.tileLayer(
+            "https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
+            {
+                attribution:
+                    '&copy; <a href="https://carto.com/">CartoDB</a>, &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+        ).addTo(map);
+
+        // Array of marker data
+        const markers = [
+            { position: [9.082, 8.6753], title: "Nigeria" },
+            { position: [15.4542, 18.7322], title: "Chad" },
+            { position: [-30.5595, 22.9375], title: "South Africa" },
+            { position: [-19.0154, 29.1549], title: "Zimbabwe" },
+            { position: [-22.9576, 18.4904], title: "Namibia" },
+            { position: [-11.2027, 17.8739], title: "Angola" },
+            { position: [-18.6657, 35.5296], title: "Mozambique" },
+            { position: [-6.369, 34.8888], title: "Tanzania" },
+            { position: [-4.0383, 21.7587], title: "Democratic Republic of the Congo" },
+            { position: [-0.8037, 11.6094], title: "Gabon" },
+            { position: [9.145, 40.4897], title: "Ethiopia" },
+            { position: [12.8628, 30.2176], title: "Sudan" },
+            { position: [26.3351, 17.2283], title: "Libya" },
+            { position: [28.0339, 1.6596], title: "Algeria" },
+            { position: [21.0079, -10.9408], title: "Mauritania" },
+            { position: [7.9465, -1.0232], title: "Ghana" }
+        ];
+
+        // Function to format ID with two digits (e.g., 01, 02, 03)
+        function formatId(id) {
+            return id < 10 ? `0${id}` : id;
+        }
+
+        // Function to create a custom marker
+        function createCustomMarker(lat, lng, id, index) {
+            const customDivIcon = L.divIcon({
+                className: "custom-marker",
+                html: formatId(id),
+                iconSize: [30, 20],
+            });
+
+            // Add the marker to the map
+            const marker = L.marker([lat, lng], { icon: customDivIcon }).addTo(map);
+
+            // Add click event to the marker
+            marker.on("click", () => {
+                const isEven = index % 2 === 0;
+                alert(`You clicked on a ${isEven ? "Even" : "Odd"} marker with ID: ${formatId(id)}`);
+            });
+        }
+
+        // Add all markers to the map
+        markers.forEach((markerData, index) => {
+            createCustomMarker(markerData.position[0], markerData.position[1], index + 1, index);
+        });
+
+        // Wait for markers to be added, then query and style them
+        setTimeout(() => {
+            const markerElements = document.querySelectorAll(".custom-marker");
+
+            markerElements.forEach((marker, index) => {
+                if (index % 2 === 0) {
+                    marker.style.backgroundColor = "yellow";
+                } else {
+                    marker.style.backgroundColor = "red";
+                }
+            });
+        }, 100);
+    </script>
+</body>
+
+</html>
