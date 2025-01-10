@@ -44,15 +44,19 @@
             overflow-y: auto;
         }
 
+        .sidebar>* {
+            margin-bottom: 20px;
+            /* Adds spacing between sections */
+        }
+
         .search-section {
             margin-bottom: 20px;
         }
 
         .search-input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 20px 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
             font-size: 14px;
             box-sizing: border-box;
         }
@@ -85,19 +89,33 @@
         }
 
         button {
-            padding: 8px 16px;
+            padding: 20px 20px;
             border: none;
-            border-radius: 4px;
+            width: 335px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            --curve-size: 1.3em;
+            clip-path: polygon(0 0,
+                    calc(100% - var(--curve-size)) 0,
+                    100% var(--curve-size),
+                    100% 100%,
+                    var(--curve-size) 100%,
+                    0 calc(100% - var(--curve-size)));
+
+        }
+
+        button:hover {
+            opacity: 0.8;
         }
 
         .apply-btn {
-            background: #ffd700;
+            background: #ffd900;
             color: black;
         }
 
         .cancel-btn {
-            background: #f5f5f5;
+            background: rgba(242, 243, 246, 1);
             color: black;
         }
 
@@ -118,6 +136,14 @@
             border-radius: 8px;
             position: relative;
             min-width: 200px;
+            --curve-size: 1.3em;
+            clip-path: polygon(0 0,
+                    100% 0,
+                    100% var(--curve-size),
+                    calc(100% - var(--curve-size)) 0,
+                    0 0,
+                    0 100%);
+
         }
 
         .info-card::after {
@@ -146,7 +172,6 @@
 
         .dropdown {
             border: 1px solid #c1c2c5;
-            border-radius: 12px;
             transition: all 300ms;
             display: flex;
             flex-direction: column;
@@ -179,9 +204,9 @@
             transition: all 500ms ease-out;
         }
 
-        .trigger {
+        .trigger,
+        .trigger2 {
             cursor: pointer;
-
             -webkit-user-select: none;
             -moz-user-select: none;
             user-select: none;
@@ -212,11 +237,13 @@
             border-width: 0;
         }
 
-        .dropdown input:where(:checked)+.trigger {
+        .dropdown input:where(:checked)+.trigger,
+        .dropdown input:where(:checked)+.trigger2 {
             margin-bottom: 1rem;
         }
 
-        .dropdown input:where(:checked)+.trigger:before {
+        .dropdown input:where(:checked)+.trigger:before,
+        .dropdown input:where(:checked)+.trigger2:before {
             rotate: 90deg;
             transition-delay: 0ms;
         }
@@ -225,15 +252,22 @@
             content: "Secteur d'activité";
         }
 
+        .dropdown input:where(:checked)+.trigger2::after {
+            content: "Type d'entreprise";
+        }
+
         .trigger:before,
-        .trigger::after {
+        .trigger::after,
+        .trigger2:before,
+        .trigger2::after {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .trigger:before {
+        .trigger:before,
+        .trigger2:before {
             content: "›";
             rotate: -90deg;
             width: 17px;
@@ -247,6 +281,10 @@
 
         .trigger::after {
             content: "Secteur d'activité";
+        }
+
+        .trigger2::after {
+            content: "Type d'entreprise";
         }
 
         .list {
@@ -311,9 +349,8 @@
 
 
             <div class="dropdown">
-                <input hidden="" class="sr-only" name="state-dropdown" id="state-dropdown" type="checkbox" />
-                <label aria-label="dropdown scrollbar" for="state-dropdown" class="trigger"></label>
-
+                <input hidden class="sr-only" name="category-dropdown" id="category-dropdown" type="checkbox" />
+                <label aria-label="dropdown scrollbar" for="category-dropdown" class="trigger"></label>
                 <div class="filter-section list webkit-scrollbar" role="list" dir="auto">
                     <div class="checkbox-group listitem">
                         <label class="checkbox-item">
@@ -331,18 +368,27 @@
 
 
             <div class="dropdown">
-                <input hidden="" class="sr-only" name="state-dropdown" id="state-dropdown" type="checkbox" />
-                <label aria-label="dropdown scrollbar" for="state-dropdown" class="trigger"></label>
-
-                <div class="filter-section">
-                    <h3>Type</h3>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="type" value="fuez"> FUEZ
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="type" value="non-fuez"> Non-FUEZ
-                        </label>
+                <input hidden class="sr-only" name="type-dropdown" id="type-dropdown" type="checkbox" />
+                <label aria-label="dropdown scrollbar" for="type-dropdown" class="trigger2"></label>
+                <div class="filter-section list webkit-scrollbar" role="list" dir="auto">
+                    <div class="filter-section listitem">
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="type" value="fuez"> Afrique de l’Ouest
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="type" value="non-fuez"> Afrique de l’Est
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="type" value="non-fuez"> Afrique Centrale
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="type" value="non-fuez"> Afrique du Nord
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="type" value="non-fuez"> Afrique Australe
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -361,7 +407,7 @@
     <script>
         // Enhanced markers data with categories and types
         const categories = ['telecom', 'finance', 'agriculture'];
-        const types = ['fuez', 'non-fuez'];
+        const types = ['Afrique de l’Ouest', 'Afrique de l’Est', 'Afrique Centrale', 'Afrique du Nord', 'Afrique Australe '];
 
         const markers = [
             { position: [9.082, 8.6753], title: "Nigeria", category: categories[Math.floor(Math.random() * categories.length)], type: types[Math.floor(Math.random() * types.length)] },
@@ -405,8 +451,8 @@
             return L.divIcon({
                 className: 'marker-pin',
                 html: '02',
-                iconSize: [30, 30],
-                html: `<div class="marker-pin" style="background-color: ${type === 'fuez' ? '#ff1493' : '#ffd700'}">02</div>`
+                iconSize: [46, 30],
+                html: `<div class="marker-pin" style="background-color: ${type === 'Afrique de l’Est' ? '#ff1493' : '#ffd700'}">02</div>`
             });
         }
 
@@ -442,7 +488,6 @@
                     m.on('mouseout', function (e) {
                         this.closePopup();
                     });
-
 
                 }
             });
