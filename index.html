@@ -136,14 +136,6 @@
             border-radius: 8px;
             position: relative;
             min-width: 200px;
-            --curve-size: 1.3em;
-            clip-path: polygon(0 0,
-                    100% 0,
-                    100% var(--curve-size),
-                    calc(100% - var(--curve-size)) 0,
-                    0 0,
-                    0 100%);
-
         }
 
         .info-card::after {
@@ -405,6 +397,38 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script>
+        // Helper function to determine African region based on country
+        function getAfricanRegion(country) {
+            const regions = {
+                'West': ['Nigeria', 'Ghana', 'Mauritania'],
+                'East': ['Ethiopia', 'Sudan', 'Tanzania'],
+                'Central': ['Chad', 'Gabon', 'Democratic Republic of the Congo', 'Angola'],
+                'North': ['Libya', 'Algeria'],
+                'Southern': ['South Africa', 'Zimbabwe', 'Namibia', 'Mozambique']
+            };
+
+            for (let [region, countries] of Object.entries(regions)) {
+                if (countries.includes(country)) {
+                    return `Afrique ${region === 'West' ? 'de l\'Ouest' :
+                        region === 'East' ? 'de l\'Est' :
+                            region === 'North' ? 'du Nord' :
+                                region === 'Southern' ? 'Australe' :
+                                    'Centrale'}`;
+                }
+            }
+            return 'Unknown';
+        }
+
+        // Get color based on category
+        function getCategoryColor(category) {
+            const colors = {
+                'telecom': '#ff1493',
+                'finance': '#ffd700',
+                'agriculture': '#32cd32'
+            };
+            return colors[category] || '#ffd700';
+        }
+
         // Enhanced markers data with categories and types
         const categories = ['telecom', 'finance', 'agriculture'];
         const types = ['Afrique de l’Ouest', 'Afrique de l’Est', 'Afrique Centrale', 'Afrique du Nord', 'Afrique Australe '];
@@ -426,7 +450,12 @@
             { position: [28.0339, 1.6596], title: "Algeria", category: categories[Math.floor(Math.random() * categories.length)], type: types[Math.floor(Math.random() * types.length)] },
             { position: [21.0079, -10.9408], title: "Mauritania", category: categories[Math.floor(Math.random() * categories.length)], type: types[Math.floor(Math.random() * types.length)] },
             { position: [7.9465, -1.0232], title: "Ghana", category: categories[Math.floor(Math.random() * categories.length)], type: types[Math.floor(Math.random() * types.length)] }
-        ];
+        ].map(marker => ({
+            ...marker,
+            region: getAfricanRegion(marker.title)
+        }));;
+
+
 
         // Initialize map
         const map = L.map('map', {
@@ -446,39 +475,40 @@
 
         let markerLayer = L.layerGroup().addTo(map);
 
-        // Custom marker icon
-        function createCustomMarker(type) {
+        // Custom marker icon with category-based coloring
+        function createCustomMarker(category, region) {
+            const regionAbbr = region.split(' ').pop().charAt(0);
             return L.divIcon({
                 className: 'marker-pin',
-                html: '02',
                 iconSize: [46, 30],
-                html: `<div class="marker-pin" style="background-color: ${type === 'Afrique de l’Est' ? '#ff1493' : '#ffd700'}">02</div>`
+                html: `<div class="marker-pin" style="background-color: ${getCategoryColor(category)}">${regionAbbr}</div>`
             });
         }
 
-        function updateMarkers(filters = { categories: [], types: [] }) {
+        // Update markers with search and filters
+        function updateMarkers(filters = { categories: [], regions: [] }, searchText = '') {
             markerLayer.clearLayers();
 
             markers.forEach(marker => {
                 const matchesCategory = filters.categories.length === 0 || filters.categories.includes(marker.category);
-                const matchesType = filters.types.length === 0 || filters.types.includes(marker.type);
+                const matchesRegion = filters.regions.length === 0 || filters.regions.includes(marker.region);
+                const matchesSearch = !searchText || marker.title.toLowerCase().includes(searchText.toLowerCase());
 
-                if (matchesCategory && matchesType) {
+                if (matchesCategory && matchesRegion && matchesSearch) {
                     const m = L.marker(marker.position, {
-                        icon: createCustomMarker(marker.type)
+                        icon: createCustomMarker(marker.category, marker.region)
                     }).addTo(markerLayer);
 
-                    // Add hover popup
                     const popupContent = `
-                        <div class="info-card">
-                            <h4 class="title">${marker.title}</h4>
-                            <img class="fuze-logo" src="./logo.svg" alt="Fuze Logo">
-                        </div>
-                    `;
-
+                <div class="info-card" >
+                    <h4>${marker.title}</h4>
+                    <img class="fuze-logo" src="./logo.svg" alt="Fuze Logo">
+                </div>
+            `;
 
                     m.bindPopup(popupContent, {
-                        offset: [0, -15]
+                        offset: [0, -15],
+                        className: 'custom-popup'
                     });
 
                     m.on('mouseover', function (e) {
@@ -488,44 +518,40 @@
                     m.on('mouseout', function (e) {
                         this.closePopup();
                     });
-
                 }
             });
         }
-
-        // Initial render
-        updateMarkers();
-
-        // Handle search
-        const searchInput = document.querySelector('.search-input');
-        searchInput.addEventListener('input', (e) => {
+        // Event Listeners
+        document.querySelector('.search-input').addEventListener('input', (e) => {
             const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-            const selectedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
+            const selectedRegions = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
 
             updateMarkers({
                 categories: selectedCategories,
-                types: selectedTypes
+                regions: selectedRegions
             }, e.target.value);
         });
 
-        // Handle filters
         document.querySelector('.apply-btn').addEventListener('click', () => {
             const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-            const selectedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
+            const selectedRegions = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
 
             updateMarkers({
                 categories: selectedCategories,
-                types: selectedTypes
-            }, searchInput.value);
+                regions: selectedRegions
+            }, document.querySelector('.search-input').value);
         });
 
         document.querySelector('.cancel-btn').addEventListener('click', () => {
             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            searchInput.value = '';
+            document.querySelector('.search-input').value = '';
             updateMarkers();
         });
+
+        // Initial render
+        updateMarkers();
     </script>
 </body>
 
