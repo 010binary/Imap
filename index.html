@@ -46,7 +46,6 @@
 
         .sidebar>* {
             margin-bottom: 20px;
-            /* Adds spacing between sections */
         }
 
         .search-section {
@@ -73,13 +72,14 @@
         .checkbox-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .button-group {
@@ -136,7 +136,25 @@
             border-radius: 8px;
             position: relative;
             min-width: 200px;
+            max-width: 200px;
         }
+
+        /* .info-card {
+            padding: 15px;
+            background: white;
+            position: relative;
+            min-width: 200px;
+            max-width: 200px;
+            --curve-size: 1.3em;
+            clip-path: polygon(0 0,
+                    100% 0,
+                    100% var(--curve-size),
+                    calc(100% - var(--curve-size)) 0,
+                    0 0,
+                    0 100%,
+                    100% 100%,
+                    100% 100%);
+        } */
 
         .info-card::after {
             content: '';
@@ -287,7 +305,7 @@
             grid-auto-flow: row;
             overflow: hidden auto;
             gap: 1rem;
-            padding: 0 1rem;
+            padding: 10px 1rem;
             margin-right: -8px;
             --w-scrollbar: 8px;
         }
@@ -328,6 +346,12 @@
         .webkit-scrollbar:hover::-webkit-scrollbar-thumb {
             background: #c1c2c5;
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+        }
     </style>
 </head>
 
@@ -341,7 +365,7 @@
 
 
             <div class="dropdown">
-                <input hidden class="sr-only" name="category-dropdown" id="category-dropdown" type="checkbox" />
+                <input hidden class="sr-only" name="category-dropdown" id="category-dropdown" type="checkbox" checked />
                 <label aria-label="dropdown scrollbar" for="category-dropdown" class="trigger"></label>
                 <div class="filter-section list webkit-scrollbar" role="list" dir="auto">
                     <div class="checkbox-group listitem">
@@ -360,7 +384,7 @@
 
 
             <div class="dropdown">
-                <input hidden class="sr-only" name="type-dropdown" id="type-dropdown" type="checkbox" />
+                <input hidden class="sr-only" name="type-dropdown" id="type-dropdown" type="checkbox" checked />
                 <label aria-label="dropdown scrollbar" for="type-dropdown" class="trigger2"></label>
                 <div class="filter-section list webkit-scrollbar" role="list" dir="auto">
                     <div class="filter-section listitem">
